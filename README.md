@@ -32,12 +32,21 @@ It enables efficient management of employee tasks, role-based dashboards, and a 
 
 ## 📂 Project Structure
 TaskBoard/
+
 │
+
 ├── views/ # EJS templates (login, register, dashboard, profile, etc.)
+
 ├── public/ # Static assets (CSS, images)
+
 ├── routes/ # Express routes
+
 ├── controllers/ # Core business logic
+
 ├── models/ # Mongoose models (User, Task)
+
 ├── config/ # MongoDB connection setup
+
 ├── app.js # Main Express server
+
 └── package.json # Dependencies and scripts
