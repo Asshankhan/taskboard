@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profile | Taskboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet" />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+        color: #f1f1f1;
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+      }
+
+      .navbar {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(6px);
+      }
+
+      .form-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        max-width: 600px;
+        margin: 3rem auto;
+      }
+
+      .btn-glow {
+        background: linear-gradient(90deg, #00b4d8, #0077b6);
+        border: none;
+        color: #fff;
+        transition: all 0.3s ease;
+      }
+
+      .btn-glow:hover {
+        background: linear-gradient(90deg, #48cae4, #0096c7);
+        box-shadow: 0 0 15px #00b4d8;
+      }
+
+      .password-wrapper {
+        position: relative;
+      }
+
+      .password-wrapper input {
+        padding-right: 2.5rem;
+      }
+
+      .toggle-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #bbb;
+        cursor: pointer;
+        z-index: 2;
+      }
+
+      #strengthMeter {
+        height: 8px;
+        border-radius: 4px;
+        margin-top: 8px;
+        background: #2d2d3a;
+        overflow: hidden;
+      }
+
+      #strengthMeter div {
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        color: #aaa;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">TaskBoard</a>
+        <div>
+          <a href="/profile" class="btn btn-outline-light btn-sm me-2">
+            <i class="bi bi-arrow-left"></i> Back
+          </a>
+          <a href="/login" class="btn btn-outline-light btn-sm"> Logout </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Edit Profile Form -->
+    <div class="form-card">
+      <h3 class="text-center mb-4">Edit Profile</h3>
+
+      <form action="/edit-profile" method="POST">
+        <div class="mb-3">
+          <label for="name" class="form-label text-light">Full Name</label>
+          <input
+            type="text"
+            class="form-control bg-dark text-light border-0"
+            id="name"
+            name="name"
+            value="<%= user ? user.name : '' %>"
+            required />
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label text-light">Email</label>
+          <input
+            type="email"
+            class="form-control bg-dark text-light border-0"
+            id="email"
+            name="email"
+            value="<%= user ? user.email : '' %>"
+            required />
+        </div>
+
+        <div class="mb-3 password-wrapper">
+          <label for="password" class="form-label text-light"
+            >New Password</label
+          >
+          <input
+            type="password"
+            class="form-control bg-dark text-light border-0"
+            id="password"
+            name="password"
+            placeholder="Leave blank to keep existing password" />
+          <i class="bi bi-eye-slash toggle-icon" id="togglePassword"></i>
+
+          <div id="strengthMeter"><div></div></div>
+        </div>
+
+        <div class="mb-3 password-wrapper">
+          <label for="confirmPassword" class="form-label text-light"
+            >Confirm Password</label
+          >
+          <input
+            type="password"
+            class="form-control bg-dark text-light border-0"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirm your password" />
+          <i class="bi bi-eye-slash toggle-icon" id="toggleConfirm"></i>
+        </div>
+
+        <button type="submit" class="btn btn-glow w-100 mt-3">
+          <i class="bi bi-save"></i> Save Changes
+        </button>
+      </form>
+    </div>
+
+    <footer>
+      <p>
+        © <%= new Date().getFullYear() %> TaskBoard | Empowering Teams
+        Efficiently
+      </p>
+    </footer>
+
+    <script>
+      const password = document.getElementById("password");
+      const confirmPassword = document.getElementById("confirmPassword");
+      const togglePassword = document.getElementById("togglePassword");
+      const toggleConfirm = document.getElementById("toggleConfirm");
+      const meter = document.querySelector("#strengthMeter div");
+
+      // password strength meter
+      password.addEventListener("input", () => {
+        const val = password.value;
+        let strength = 0;
+        if (val.match(/[a-z]+/)) strength += 1;
+        if (val.match(/[A-Z]+/)) strength += 1;
+        if (val.match(/[0-9]+/)) strength += 1;
+        if (val.match(/[$@#&!%*?^]/)) strength += 1;
+        if (val.length >= 8) strength += 1;
+
+        meter.style.width = strength * 20 + "%";
+        meter.style.background =
+          strength < 3 ? "#f87171" : strength < 4 ? "#facc15" : "#4ade80";
+      });
+
+      // toggle visibility
+      togglePassword.addEventListener("click", () => {
+        const type = password.type === "password" ? "text" : "password";
+        password.type = type;
+        togglePassword.classList.toggle("bi-eye");
+        togglePassword.classList.toggle("bi-eye-slash");
+      });
+
+      toggleConfirm.addEventListener("click", () => {
+        const type = confirmPassword.type === "password" ? "text" : "password";
+        confirmPassword.type = type;
+        toggleConfirm.classList.toggle("bi-eye");
+        toggleConfirm.classList.toggle("bi-eye-slash");
+      });
+
+      // confirm password validation
+      document.querySelector("form").addEventListener("submit", (e) => {
+        if (password.value && password.value !== confirmPassword.value) {
+          e.preventDefault();
+          alert("Passwords do not match!");
+        }
+      });
+    </script>
+  </body>
+</html>
