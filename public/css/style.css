@@ -1,0 +1,40 @@
+body.dark-theme {
+  background: radial-gradient(circle at top left, #1e1e2f, #121212);
+  color: #eee;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  color: #fff;
+  transition: transform 0.2s;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #ffb347, #ffcc33);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.toast-body {
+  font-weight: 500;
+}
+
+/* Light Mode */
+body.light-theme {
+  background: #f8f9fa;
+  color: #212529;
+}
+.light-theme .glass-card {
+  background: #fff;
+  color: #212529;
+  border: 1px solid #ddd;
+}

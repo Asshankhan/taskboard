@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Employee Analytics</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #0d1117, #1a1f2b);
+        color: #fff;
+        overflow-x: hidden;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+      }
+
+      h1 {
+        text-align: center;
+        margin: 25px 0;
+        color: #00d4ff;
+        font-weight: 600;
+      }
+
+      .carousel-inner {
+        max-width: 1100px;
+        margin: auto;
+      }
+
+      .carousel-item {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        height: 500px;
+        padding: 20px;
+        transition: opacity 0.6s ease-in-out;
+      }
+
+      .carousel-item canvas {
+        width: 100% !important;
+        max-width: 900px;
+        height: 420px !important;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+        padding: 15px;
+      }
+
+      .leaderboard {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        margin: 40px auto;
+        padding: 25px;
+        width: 95%;
+        max-width: 1000px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .leaderboard h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #00d4ff;
+      }
+
+      th {
+        background: #00d4ff;
+        color: #000;
+        text-transform: uppercase;
+        font-size: 13px;
+      }
+
+      .efficiency-high {
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .efficiency-medium {
+        color: #ffc107;
+        font-weight: bold;
+      }
+      .efficiency-low {
+        color: #f44336;
+        font-weight: bold;
+      }
+
+      footer {
+        text-align: center;
+        padding: 20px;
+        color: #aaa;
+        font-size: 14px;
+      }
+
+      .carousel-control-prev-icon,
+      .carousel-control-next-icon {
+        filter: invert(1);
+      }
+
+      /* Ensure only one canvas is visible at a time */
+      .carousel-item:not(.active) canvas {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/dashboard" class="btn btn-primary">←</a>
+    <h1>Admin Analytics Dashboard</h1>
+
+    <!-- Chat AI -->
+    <!-- AI Insights Section -->
+    <% if (aiSummary) { %>
+    <div class="container my-4">
+      <div class="card shadow-lg border-0 glass-card p-4">
+        <h4 class="text-info fw-bold mb-3">💡 AI Productivity Insights</h4>
+        <p style="white-space: pre-wrap; color: #e0e0e0"><%= aiSummary %></p>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Carousel -->
+    <div
+      id="chartCarousel"
+      class="carousel slide"
+      data-bs-ride="carousel"
+      data-bs-interval="5000">
+      <div class="carousel-inner">
+        <div class="carousel-item active"><canvas id="chart1"></canvas></div>
+        <div class="carousel-item"><canvas id="chart2"></canvas></div>
+        <div class="carousel-item"><canvas id="chart3"></canvas></div>
+      </div>
+
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#chartCarousel"
+        data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#chartCarousel"
+        data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+      <h3>Employee Performance Leaderboard</h3>
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Completed</th>
+              <th>In Progress</th>
+              <th>Pending</th>
+              <th>Avg Time (Days)</th>
+              <th>Efficiency (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% efficiencyData.forEach((emp, i) => { const effClass =
+            emp.efficiency > 75 ? 'efficiency-high' : emp.efficiency > 50 ?
+            'efficiency-medium' : 'efficiency-low'; %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= emp.name %></td>
+              <td><%= emp.completed %></td>
+              <td><%= emp.inProgress %></td>
+              <td><%= emp.pending %></td>
+              <td><%= emp.avgTime %></td>
+              <td class="<%= effClass %>"><%= emp.efficiency %>%</td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      © <%= new Date().getFullYear() %> Employee Taskboard | Admin Insights
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const data = <%- JSON.stringify(efficiencyData) %>;
+
+      const chartConfigs = [
+        {
+          id: "chart1",
+          type: "bar",
+          title: "Completed Tasks by Employee",
+          data: {
+            labels: data.map(d => d.name),
+            datasets: [{ label: "Completed", data: data.map(d => d.completed), backgroundColor: "#4CAF50" }]
+          }
+        },
+        {
+          id: "chart2",
+          type: "bar",
+          title: "Average Completion Time (Days)",
+          data: {
+            labels: data.map(d => d.name),
+            datasets: [{ label: "Avg Time", data: data.map(d => d.avgTime), backgroundColor: "#00d4ff" }]
+          }
+        },
+        {
+          id: "chart3",
+          type: "pie",
+          title: "Overall Task Distribution",
+          data: {
+            labels: ["Completed", "In Progress", "Pending"],
+            datasets: [{
+              data: [
+                data.reduce((a, b) => a + b.completed, 0),
+                data.reduce((a, b) => a + b.inProgress, 0),
+                data.reduce((a, b) => a + b.pending, 0)
+              ],
+              backgroundColor: ["#4CAF50", "#FFC107", "#F44336"]
+            }]
+          }
+        }
+      ];
+
+      let currentChart = null;
+
+      function renderChart(index) {
+        const config = chartConfigs[index];
+        const ctx = document.getElementById(config.id).getContext("2d");
+
+        if (currentChart) currentChart.destroy();
+
+        currentChart = new Chart(ctx, {
+          type: config.type,
+          data: config.data,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { labels: { color: "#fff" } },
+              title: { display: true, text: config.title, color: "#00d4ff", font: { size: 18 } }
+            },
+            scales: {
+              x: { ticks: { color: "#fff" }, grid: { color: "#333" } },
+              y: { ticks: { color: "#fff" }, grid: { color: "#333" } }
+            }
+          }
+        });
+      }
+
+      // Render first chart initially
+      renderChart(0);
+
+      // On slide change, show only one chart
+      const carousel = document.getElementById("chartCarousel");
+      carousel.addEventListener("slid.bs.carousel", (e) => renderChart(e.to));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Employee Taskboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet" />
+
+    <style>
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #1e1f29, #32384e);
+        color: #fff;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container-box {
+        display: flex;
+        width: 90%;
+        max-width: 1000px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      .form-section {
+        flex: 1;
+        padding: 3rem;
+      }
+
+      .visual-section {
+        flex: 1;
+        background-color: #242533;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .visual-section img {
+        width: 80%;
+        max-width: 400px;
+        border-radius: 10px;
+      }
+
+      .form-section h2 {
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .form-section a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background-color: #58a6ff;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background-color: #007bff;
+      }
+
+      .form-control,
+      .form-select {
+        background-color: #2d2d3a;
+        border: none;
+        color: #fff;
+      }
+
+      .password-wrapper {
+        position: relative;
+        display: block;
+      }
+
+      .password-wrapper .form-control {
+        padding-right: 3.2rem;
+        box-sizing: border-box;
+      }
+
+      .password-wrapper .toggle-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #bbb;
+        font-size: 1.1rem;
+        user-select: none;
+      }
+
+      /* Password strength bar */
+      .strength-bar {
+        height: 6px;
+        border-radius: 10px;
+        margin-top: 6px;
+        background-color: #444;
+        overflow: hidden;
+      }
+
+      .strength-level {
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease, background-color 0.3s ease;
+      }
+
+      .strength-text {
+        font-size: 0.85rem;
+        margin-top: 4px;
+        color: #ccc;
+      }
+
+      .match-text {
+        font-size: 0.85rem;
+        margin-top: 4px;
+        min-height: 1.1rem;
+      }
+
+      @media (max-width: 480px) {
+        .password-wrapper .toggle-icon {
+          font-size: 0.95rem;
+          right: 8px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-box">
+      <div class="form-section">
+        <h2 class="mb-3">Taskboard 🧑‍💻</h2>
+        <p class="mb-4 text-secondary">
+          Create an account to manage employees and assign work effortlessly.
+        </p>
+
+        <form action="/register" method="POST" id="registerForm">
+          <div class="mb-3">
+            <label for="name" class="form-label text-light">Full Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              required />
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label text-light">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              required />
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3 password-wrapper">
+            <label for="password" class="form-label text-light">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+              autocomplete="new-password" />
+            <i class="bi bi-eye-slash toggle-icon" id="togglePassword"></i>
+
+            <div class="strength-bar mt-2">
+              <div id="strengthLevel" class="strength-level"></div>
+            </div>
+            <div id="strengthText" class="strength-text"></div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-3 password-wrapper">
+            <label for="confirm" class="form-label text-light"
+              >Confirm Password</label
+            >
+            <input
+              type="password"
+              class="form-control"
+              id="confirm"
+              name="confirm_password"
+              required />
+            <i class="bi bi-eye-slash toggle-icon" id="toggleConfirm"></i>
+            <div id="matchText" class="match-text"></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="role" class="form-label text-light">Role</label>
+            <select class="form-select" id="role" name="role" required>
+              <option value="employee">Employee</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 mt-3">
+            Register
+          </button>
+        </form>
+
+        <p class="mt-4 text-light">
+          Already have an account? <a href="/login">Login here</a>
+        </p>
+      </div>
+
+      <div class="visual-section">
+        <img src="/image/task_register.jpg" alt="Register Illustration" />
+      </div>
+    </div>
+
+    <script>
+      const passwordInput = document.getElementById("password");
+      const confirmInput = document.getElementById("confirm");
+      const togglePassword = document.getElementById("togglePassword");
+      const toggleConfirm = document.getElementById("toggleConfirm");
+      const strengthBar = document.getElementById("strengthLevel");
+      const strengthText = document.getElementById("strengthText");
+      const matchText = document.getElementById("matchText");
+      const registerForm = document.getElementById("registerForm");
+
+      // Eye toggles
+      togglePassword.addEventListener("click", () => {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+        togglePassword.classList.toggle("bi-eye");
+        togglePassword.classList.toggle("bi-eye-slash");
+      });
+
+      toggleConfirm.addEventListener("click", () => {
+        const type =
+          confirmInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        confirmInput.setAttribute("type", type);
+        toggleConfirm.classList.toggle("bi-eye");
+        toggleConfirm.classList.toggle("bi-eye-slash");
+      });
+
+      // Password Strength Check
+      passwordInput.addEventListener("input", () => {
+        const val = passwordInput.value;
+        let strength = 0;
+
+        if (val.length >= 6) strength++;
+        if (/[A-Z]/.test(val)) strength++;
+        if (/[a-z]/.test(val)) strength++;
+        if (/[0-9]/.test(val)) strength++;
+        if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+        const width = (strength / 5) * 100;
+        strengthBar.style.width = width + "%";
+
+        if (strength <= 2) {
+          strengthBar.style.backgroundColor = "#dc3545";
+          strengthText.textContent = "Weak";
+          strengthText.style.color = "#dc3545";
+        } else if (strength === 3 || strength === 4) {
+          strengthBar.style.backgroundColor = "#ffc107";
+          strengthText.textContent = "Medium";
+          strengthText.style.color = "#ffc107";
+        } else {
+          strengthBar.style.backgroundColor = "#28a745";
+          strengthText.textContent = "Strong";
+          strengthText.style.color = "#28a745";
+        }
+
+        if (val.length === 0) {
+          strengthBar.style.width = "0%";
+          strengthText.textContent = "";
+        }
+      });
+
+      // Confirm Password Match Check
+      function checkMatch() {
+        if (confirmInput.value === "") {
+          matchText.textContent = "";
+          return;
+        }
+
+        if (passwordInput.value === confirmInput.value) {
+          matchText.textContent = "✅ Passwords match";
+          matchText.style.color = "#28a745";
+        } else {
+          matchText.textContent = "❌ Passwords do not match";
+          matchText.style.color = "#dc3545";
+        }
+      }
+
+      confirmInput.addEventListener("input", checkMatch);
+      passwordInput.addEventListener("input", checkMatch);
+
+      // Prevent submit if invalid
+      registerForm.addEventListener("submit", (e) => {
+        const pass = passwordInput.value;
+        const confirm = confirmInput.value;
+        const regex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}[\]|:;"'<>,.?/~`]).{6,}$/;
+
+        if (!regex.test(pass)) {
+          e.preventDefault();
+          alert(
+            "Password must contain at least 6 characters, including uppercase, lowercase, number, and special symbol."
+          );
+          return;
+        }
+
+        if (pass !== confirm) {
+          e.preventDefault();
+          alert("Passwords do not match!");
+        }
+      });
+    </script>
+  </body>
+</html>
