@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI Assistant - Taskboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <style>
+      body {
+        background: linear-gradient(180deg, #0f1724, #071026);
+        color: #e6eef8;
+        font-family: Poppins, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .chat-header {
+        position: sticky;
+        top: 0;
+        background: #0d1629;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .chat-box {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 12px;
+        padding: 16px;
+        overflow: hidden;
+      }
+
+      .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 6px;
+        scroll-behavior: smooth;
+      }
+
+      .msg {
+        padding: 10px 14px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        max-width: 80%;
+        word-wrap: break-word;
+      }
+
+      .msg.user {
+        background: linear-gradient(90deg, #0052d4, #4364f7);
+        margin-left: auto;
+        color: #fff;
+      }
+
+      .msg.bot {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e6eef8;
+      }
+
+      .quick-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 10px 0;
+        gap: 6px;
+      }
+
+      .quick-buttons .btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #e6eef8;
+        font-size: 0.85rem;
+      }
+
+      .chat-input-container {
+        position: sticky;
+        bottom: 0;
+        background: #0d1629;
+        padding: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .chat-input-container input {
+        flex: 1;
+        background-color: #1a2339;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        outline: none;
+      }
+
+      .chat-input-container button {
+        background: linear-gradient(90deg, #0052d4, #4364f7);
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 18px;
+      }
+
+      .chat-input-container button:hover {
+        background: linear-gradient(90deg, #0052d4, #5794ff);
+      }
+
+      .meta {
+        font-size: 12px;
+        color: #bcd;
+        margin-bottom: 8px;
+      }
+
+      /* scrollbar styling */
+      .messages::-webkit-scrollbar {
+        width: 8px;
+      }
+      .messages::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">
+        <h3>💡 AI Assistant</h3>
+        <a class="btn btn-outline-light btn-sm" href="/dashboard">Back</a>
+      </div>
+
+      <div class="chat-box">
+        <div class="meta">
+          Ask questions about team performance, efficiency, or suggestions for
+          improvement.
+        </div>
+
+        <div class="messages" id="messages">
+          <% if (conversation && conversation.messages &&
+          conversation.messages.length) { %> <%
+          conversation.messages.forEach(msg => { %>
+          <div class="msg <%= msg.role === 'user' ? 'user' : 'bot' %>">
+            <%= msg.content %>
+            <div style="font-size: 10px; color: #99a">
+              <%= new Date(msg.createdAt).toLocaleString() %>
+            </div>
+          </div>
+          <% }) %> <% } else { %>
+          <div class="msg bot">
+            <strong>AI Assistant:</strong> Hello! 👋 I can analyze employee
+            performance...
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="quick-buttons">
+        <button class="btn btn-sm" data-q="Who is the top performer this week?">
+          Top Performer
+        </button>
+        <button
+          class="btn btn-sm"
+          data-q="Who is at risk of missing deadlines?">
+          At Risk
+        </button>
+        <button
+          class="btn btn-sm"
+          data-q="Give 3 tips to improve team productivity.">
+          Improve Team
+        </button>
+      </div>
+
+      <div class="chat-input-container">
+        <input id="userInput" type="text" placeholder="Type your message..." />
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+
+    <script>
+      const sendBtn = document.getElementById("sendBtn");
+      const userInput = document.getElementById("userInput");
+      const messages = document.getElementById("messages");
+
+      function appendMessage(text, who = "bot") {
+        const div = document.createElement("div");
+        div.className = "msg " + (who === "user" ? "user" : "bot");
+        div.textContent = text;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      async function sendMessage(text) {
+        if (!text || text.trim() === "") return;
+        appendMessage(text, "user");
+        userInput.value = "";
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+
+        const typing = document.createElement("div");
+        typing.className = "msg bot";
+        typing.textContent = "🤔 Thinking...";
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+
+        try {
+          const res = await fetch("/ai-assistant/message", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text }),
+          });
+          const data = await res.json();
+          typing.remove();
+          if (data.error) {
+            appendMessage("⚠️ Error: " + data.error, "bot");
+          } else {
+            appendMessage(data.reply, "bot");
+          }
+        } catch (err) {
+          typing.remove();
+          appendMessage("❌ Network error: " + err.message, "bot");
+        } finally {
+          userInput.disabled = false;
+          sendBtn.disabled = false;
+          userInput.focus();
+          messages.scrollTop = messages.scrollHeight;
+        }
+      }
+
+      sendBtn.addEventListener("click", () => sendMessage(userInput.value));
+      userInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendMessage(userInput.value);
+      });
+
+      document.querySelectorAll(".quick-buttons .btn").forEach((btn) => {
+        btn.addEventListener("click", () => sendMessage(btn.dataset.q));
+      });
+    </script>
+  </body>
+</html>

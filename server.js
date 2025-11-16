@@ -14,6 +14,11 @@ const apiRoutes = require('./routes/api');
 const dashboardRoutes = require('./routes/dashboard');
 const userRoutes = require("./routes/users");
 const adminRoutes = require('./routes/admin');
+// server.js (add near other route imports)
+const aiRoutes = require('./routes/ai');
+
+const cron = require('node-cron');
+const Conversation = require('./models/Conversation');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -67,6 +72,9 @@ app.use('/api', apiRoutes);
 app.use("/users", userRoutes);
 app.use('/admin', adminRoutes);
 
+app.use('/ai-assistant', aiRoutes);
+
+
 // static pages
 app.get('/', (req, res) => res.render('index'));
 app.get('/about', (req, res) => res.render('about'));
@@ -101,6 +109,19 @@ app.post("/edit-profile", (req, res) => {
   req.session.user = user;
   res.redirect("/profile");
 });
+
+
+
+// delete conversations not updated in X days (e.g., 90 days)
+cron.schedule('0 3 * * *', async () => {
+  try {
+    const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    const r = await Conversation.deleteMany({ lastUpdated: { $lt: cutoff } });
+    console.log('Cleanup old conversations removed:', r.deletedCount);
+  } catch (err) {
+    console.error('Conversation cleanup error', err);
+  }
+}, { timezone: 'UTC' });
 
 
 app.use('/', dashboardRoutes);
