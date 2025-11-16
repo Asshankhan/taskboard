@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const OpenAI = require('openai');
 const Task = require('../models/Task'); // optional: to fetch fresh data if needed
-const Conversation = require('../models/Conversation');
+const Conversation = require('../models/conversation');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

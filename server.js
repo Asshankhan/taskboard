@@ -18,7 +18,7 @@ const adminRoutes = require('./routes/admin');
 const aiRoutes = require('./routes/ai');
 
 const cron = require('node-cron');
-const Conversation = require('./models/Conversation');
+const Conversation = require('./models/conversation');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
